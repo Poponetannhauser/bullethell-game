@@ -15,5 +15,8 @@ MonoBehaviour:
   maxHealth: 1000
   moveSpeed: 2
   fireRate: 0
-  bulletPoolKey: EnemyBullet
+  bulletPoolKey: BossBullet
   scoreValue: 2000
+  mainColor: {r: 1, g: 1, b: 1, a: 1}
+  hitFlashColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+  shatterColor: {r: 1, g: 1, b: 1, a: 1}

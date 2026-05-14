@@ -17,3 +17,6 @@ MonoBehaviour:
   fireRate: 3
   bulletPoolKey: EnemyBullet
   scoreValue: 30
+  mainColor: {r: 1, g: 1, b: 1, a: 1}
+  hitFlashColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+  shatterColor: {r: 1, g: 1, b: 1, a: 1}

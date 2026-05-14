@@ -12,7 +12,7 @@ namespace BulletHell.Data
         public int scoreValue;
 
         [Header("Visuals")]
-        public Color mainColor = Color.white;
         public Color hitFlashColor = Color.red;
+        public Color shatterColor = Color.white;
     }
 }

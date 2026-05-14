@@ -27,51 +27,72 @@ namespace BulletHell.Player
         private float currentHealth;
         private bool isInvincible;
 
-        // C# Event untuk UI (Bisa di-subscribe oleh script UI Manager)
-        public event Action<float, float> OnHealthChanged;
-        public event Action OnPlayerDeath;
-
         private Rigidbody2D rb;
         private Vector2 moveInput;
         private Vector2 minBounds;
         private Vector2 maxBounds;
 
         private float nextFireTime;
+        private float currentHeat = 0f;
+        private bool isOverheated = false;
+
+        // C# Events untuk UI
+        public event Action<float, float> OnHealthChanged;
+        public event Action<float, float> OnHeatChanged;
+        public event Action OnPlayerDeath;
 
         void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
-            
-            // Coba ambil SpriteRenderer otomatis jika belum di-assign di Inspector
             if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         }
 
         void Start()
         {
             CalculateCameraBounds();
-            
             currentHealth = maxHealth;
-            // Panggil event pertama kali untuk set UI awal
+            currentHeat = 0f;
+            isOverheated = false;
+
             OnHealthChanged?.Invoke(currentHealth, maxHealth);
+            OnHeatChanged?.Invoke(currentHeat, 100f);
         }
 
         private bool isFiring;
 
         void Update()
         {
-            // 1. Logika Menembak Manual (Membutuhkan input Fire/Klik Kiri/Spasi aktif)
+            HandleShooting();
+            HandleOverheatLogic();
+            RotateTowardsMouse();
+        }
+
+        private void HandleShooting()
+        {
             bool fireRequested = isFiring || 
                                  (Mouse.current != null && Mouse.current.leftButton.isPressed) || 
                                  (Keyboard.current != null && Keyboard.current.spaceKey.isPressed);
 
-            if (fireRequested && Time.time >= nextFireTime)
+            // Bisa menembak jika: Ada request tembak, cooldown peluru selesai, DAN tidak sedang overheat
+            if (fireRequested && Time.time >= nextFireTime && !isOverheated)
             {
                 Shoot();
                 nextFireTime = Time.time + (weaponData != null ? weaponData.fireRate : 0.5f);
             }
+        }
 
-            // 2. Rotasi (Menghadap ke arah Mouse)
-            RotateTowardsMouse();
+        private void HandleOverheatLogic()
+        {
+            if (GameSettings.SelectedMode != GameMode.Overheat || weaponData == null) return;
+
+            if (isOverheated) return;
+
+            if (currentHeat > 0)
+            {
+                currentHeat -= weaponData.coolDownRate * Time.deltaTime;
+                currentHeat = Mathf.Max(0, currentHeat);
+                OnHeatChanged?.Invoke(currentHeat, 100f);
+            }
         }
 
         private void RotateTowardsMouse()
@@ -84,25 +105,52 @@ namespace BulletHell.Player
             rb.rotation = angle;
         }
 
-        // Dipanggil otomatis oleh komponen Player Input (WASD/Joystick)
         private void OnMove(InputValue value)
         {
             moveInput = value.Get<Vector2>();
         }
 
-        // Dipanggil otomatis oleh komponen Player Input saat tombol aksi menembak ditekan/dilepas
         private void OnFire(InputValue value)
         {
             isFiring = value.isPressed;
         }
 
-
         private void Shoot()
         {
             if (weaponData == null || firePoint == null) return;
 
-            // Panggil peluru dan langsung set rotasi dari PoolManager
+            // Spawn peluru
             PoolManager.Instance.GetPooledObject(weaponData.bulletPoolKey, firePoint.position, firePoint.rotation);
+
+            // Tambah panas (Hanya di mode Overheat)
+            if (GameSettings.SelectedMode == GameMode.Overheat)
+            {
+                currentHeat += weaponData.heatPerShot;
+                OnHeatChanged?.Invoke(currentHeat, 100f);
+
+                if (currentHeat >= 100f)
+                {
+                    StartCoroutine(OverheatRoutine());
+                }
+            }
+        }
+
+        private IEnumerator OverheatRoutine()
+        {
+            isOverheated = true;
+            Debug.Log("<color=red>SENJATA OVERHEAT! MENUNGGU PENDINGINAN...</color>");
+
+            // Opsional: Ubah warna sprite jadi merah membara saat overheat
+            if (spriteRenderer != null) spriteRenderer.color = Color.red;
+
+            yield return new WaitForSeconds(weaponData.overheatCooldownDuration);
+
+            currentHeat = 0f;
+            isOverheated = false;
+            
+            if (spriteRenderer != null) spriteRenderer.color = Color.white;
+            OnHeatChanged?.Invoke(currentHeat, 100f);
+            Debug.Log("<color=green>SENJATA SIAP DIGUNAKAN KEMBALI.</color>");
         }
 
         void FixedUpdate()
@@ -141,6 +189,8 @@ namespace BulletHell.Player
 
             // Memicu Screen Shake saat terkena hit (Polish & Juice Plus Point)
             CameraShake.TriggerShake(0.2f, 0.35f);
+            // Memicu Hit-Stop (Freeze Frame) untuk bobot impact berat
+            CameraShake.TriggerHitStop(0.06f);
 
             if (currentHealth <= 0)
             {

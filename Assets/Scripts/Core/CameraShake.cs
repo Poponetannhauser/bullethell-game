@@ -61,5 +61,31 @@ namespace BulletHell.Core
             transform.localPosition = originalPosition;
             shakeCoroutine = null;
         }
+
+        /// <summary>
+        /// Memicu efek Hit-Stop (Freeze Frame sementara) untuk memberikan bobot/impact pukulan berat.
+        /// </summary>
+        public static void TriggerHitStop(float duration = 0.05f)
+        {
+            if (Instance != null)
+            {
+                Instance.StartCoroutine(Instance.HitStopRoutine(duration));
+            }
+        }
+
+        private IEnumerator HitStopRoutine(float duration)
+        {
+            // Simpan skala waktu asli (berjaga-jaga jika bukan 1)
+            float originalTimeScale = Time.timeScale;
+            
+            // Bekukan waktu mendekati nol untuk memberi ilusi benturan fisik pekat
+            Time.timeScale = 0.05f;
+
+            // Karena Time.timeScale mendekati nol, kita WAJIB menggunakan WaitForSecondsRealtime
+            yield return new WaitForSecondsRealtime(duration);
+
+            // Kembalikan waktu ke normal
+            Time.timeScale = originalTimeScale;
+        }
     }
 }
