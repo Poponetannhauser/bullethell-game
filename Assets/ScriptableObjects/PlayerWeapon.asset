@@ -12,8 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 832eb9da0f277bb42820fa443b093fba, type: 3}
   m_Name: PlayerWeapon
   m_EditorClassIdentifier: Assembly-CSharp::BulletHell.Data.WeaponDataSO
-  damage: 2
+  damage: 100
   bulletSpeed: 15
   fireRate: 0.05
   bulletPoolKey: PlayerBullet
   bulletLifeTime: 2
+  heatPerShot: 1
+  coolDownRate: 5
+  overheatCooldownDuration: 5

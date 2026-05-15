@@ -13,10 +13,9 @@ MonoBehaviour:
   m_Name: EnemyWalker
   m_EditorClassIdentifier: Assembly-CSharp::BulletHell.Data.EnemyDataSO
   maxHealth: 5
-  moveSpeed: 1
+  moveSpeed: 3
   fireRate: 0
   bulletPoolKey: 
   scoreValue: 10
-  mainColor: {r: 1, g: 1, b: 1, a: 1}
   hitFlashColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
   shatterColor: {r: 1, g: 1, b: 1, a: 1}

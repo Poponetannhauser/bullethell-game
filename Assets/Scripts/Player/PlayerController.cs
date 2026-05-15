@@ -2,41 +2,39 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using BulletHell.Data;
 using BulletHell.Managers;
-using BulletHell.Core; // Tambahkan ini
+using BulletHell.Core;
 using System;
 using System.Collections;
 
 namespace BulletHell.Player
 {
     [RequireComponent(typeof(Rigidbody2D))]
-    [RequireComponent(typeof(PlayerInput))] // Menjamin komponen Player Input ada
+    [RequireComponent(typeof(PlayerInput))]
     public class PlayerController : MonoBehaviour, IDamageable
     {
         [Header("References")]
         [SerializeField] private WeaponDataSO weaponData;
         [SerializeField] private Transform firePoint;
 
-        [Header("Health Settings")]
+        [Header("Health")]
         [SerializeField] private float maxHealth = 100f;
         [SerializeField] private float invincibilityDuration = 0.5f;
         [SerializeField] private SpriteRenderer spriteRenderer;
 
-        [Header("Movement Settings")]
+        [Header("Movement")]
         [SerializeField] private float moveSpeed = 7f;
 
         private float currentHealth;
         private bool isInvincible;
-
         private Rigidbody2D rb;
         private Vector2 moveInput;
-        private Vector2 minBounds;
-        private Vector2 maxBounds;
+        private Vector2 minBounds, maxBounds;
 
         private float nextFireTime;
-        private float currentHeat = 0f;
-        private bool isOverheated = false;
+        private float currentHeat;
+        private bool isOverheated;
+        private bool isFiring;
 
-        // C# Events untuk UI
         public event Action<float, float> OnHealthChanged;
         public event Action<float, float> OnHeatChanged;
         public event Action OnPlayerDeath;
@@ -58,22 +56,33 @@ namespace BulletHell.Player
             OnHeatChanged?.Invoke(currentHeat, 100f);
         }
 
-        private bool isFiring;
-
         void Update()
         {
             HandleShooting();
-            HandleOverheatLogic();
+            HandleOverheatCooling();
             RotateTowardsMouse();
+        }
+
+        void FixedUpdate()
+        {
+            rb.linearVelocity = moveInput * moveSpeed;
+        }
+
+        // Clamp player position to stay within camera bounds
+        void LateUpdate()
+        {
+            Vector3 pos = transform.position;
+            pos.x = Mathf.Clamp(pos.x, minBounds.x, maxBounds.x);
+            pos.y = Mathf.Clamp(pos.y, minBounds.y, maxBounds.y);
+            transform.position = pos;
         }
 
         private void HandleShooting()
         {
-            bool fireRequested = isFiring || 
-                                 (Mouse.current != null && Mouse.current.leftButton.isPressed) || 
-                                 (Keyboard.current != null && Keyboard.current.spaceKey.isPressed);
+            bool fireRequested = isFiring ||
+                (Mouse.current != null && Mouse.current.leftButton.isPressed) ||
+                (Keyboard.current != null && Keyboard.current.spaceKey.isPressed);
 
-            // Bisa menembak jika: Ada request tembak, cooldown peluru selesai, DAN tidak sedang overheat
             if (fireRequested && Time.time >= nextFireTime && !isOverheated)
             {
                 Shoot();
@@ -81,18 +90,46 @@ namespace BulletHell.Player
             }
         }
 
-        private void HandleOverheatLogic()
+        // Passive heat dissipation — only runs in Overheat mode
+        private void HandleOverheatCooling()
         {
             if (GameSettings.SelectedMode != GameMode.Overheat || weaponData == null) return;
+            if (isOverheated || currentHeat <= 0) return;
 
-            if (isOverheated) return;
+            currentHeat -= weaponData.coolDownRate * Time.deltaTime;
+            currentHeat = Mathf.Max(0, currentHeat);
+            OnHeatChanged?.Invoke(currentHeat, 100f);
+        }
 
-            if (currentHeat > 0)
+        private void Shoot()
+        {
+            if (weaponData == null || firePoint == null) return;
+
+            PoolManager.Instance.GetPooledObject(weaponData.bulletPoolKey, firePoint.position, firePoint.rotation);
+
+            // Accumulate heat in Overheat mode
+            if (GameSettings.SelectedMode == GameMode.Overheat)
             {
-                currentHeat -= weaponData.coolDownRate * Time.deltaTime;
-                currentHeat = Mathf.Max(0, currentHeat);
+                currentHeat += weaponData.heatPerShot;
                 OnHeatChanged?.Invoke(currentHeat, 100f);
+
+                if (currentHeat >= 100f)
+                    StartCoroutine(OverheatRoutine());
             }
+        }
+
+        // Locks weapon for a duration when heat reaches 100%
+        private IEnumerator OverheatRoutine()
+        {
+            isOverheated = true;
+            if (spriteRenderer != null) spriteRenderer.color = Color.red;
+
+            yield return new WaitForSeconds(weaponData.overheatCooldownDuration);
+
+            currentHeat = 0f;
+            isOverheated = false;
+            if (spriteRenderer != null) spriteRenderer.color = Color.white;
+            OnHeatChanged?.Invoke(currentHeat, 100f);
         }
 
         private void RotateTowardsMouse()
@@ -100,122 +137,50 @@ namespace BulletHell.Player
             if (Mouse.current == null) return;
             Vector3 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
             Vector2 lookDir = (Vector2)mousePos - (Vector2)transform.position;
-            
+
             float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
             rb.rotation = angle;
         }
 
-        private void OnMove(InputValue value)
-        {
-            moveInput = value.Get<Vector2>();
-        }
-
-        private void OnFire(InputValue value)
-        {
-            isFiring = value.isPressed;
-        }
-
-        private void Shoot()
-        {
-            if (weaponData == null || firePoint == null) return;
-
-            // Spawn peluru
-            PoolManager.Instance.GetPooledObject(weaponData.bulletPoolKey, firePoint.position, firePoint.rotation);
-
-            // Tambah panas (Hanya di mode Overheat)
-            if (GameSettings.SelectedMode == GameMode.Overheat)
-            {
-                currentHeat += weaponData.heatPerShot;
-                OnHeatChanged?.Invoke(currentHeat, 100f);
-
-                if (currentHeat >= 100f)
-                {
-                    StartCoroutine(OverheatRoutine());
-                }
-            }
-        }
-
-        private IEnumerator OverheatRoutine()
-        {
-            isOverheated = true;
-            Debug.Log("<color=red>SENJATA OVERHEAT! MENUNGGU PENDINGINAN...</color>");
-
-            // Opsional: Ubah warna sprite jadi merah membara saat overheat
-            if (spriteRenderer != null) spriteRenderer.color = Color.red;
-
-            yield return new WaitForSeconds(weaponData.overheatCooldownDuration);
-
-            currentHeat = 0f;
-            isOverheated = false;
-            
-            if (spriteRenderer != null) spriteRenderer.color = Color.white;
-            OnHeatChanged?.Invoke(currentHeat, 100f);
-            Debug.Log("<color=green>SENJATA SIAP DIGUNAKAN KEMBALI.</color>");
-        }
-
-        void FixedUpdate()
-        {
-            // Menggunakan linearVelocity (Sesuai Unity 2023+)
-            rb.linearVelocity = moveInput * moveSpeed;
-        }
-
-        void LateUpdate()
-        {
-            // Screen Clamping (tetap sama)
-            Vector3 clampedPosition = transform.position;
-            clampedPosition.x = Mathf.Clamp(clampedPosition.x, minBounds.x, maxBounds.x);
-            clampedPosition.y = Mathf.Clamp(clampedPosition.y, minBounds.y, maxBounds.y);
-            transform.position = clampedPosition;
-        }
+        private void OnMove(InputValue value) => moveInput = value.Get<Vector2>();
+        private void OnFire(InputValue value) => isFiring = value.isPressed;
 
         private void CalculateCameraBounds()
         {
-            Camera mainCam = Camera.main;
-            if (mainCam == null) return;
-            minBounds = mainCam.ViewportToWorldPoint(new Vector3(0.05f, 0.05f, 0)); 
-            maxBounds = mainCam.ViewportToWorldPoint(new Vector3(0.95f, 0.95f, 0));
+            Camera cam = Camera.main;
+            if (cam == null) return;
+            minBounds = cam.ViewportToWorldPoint(new Vector3(0.05f, 0.05f, 0));
+            maxBounds = cam.ViewportToWorldPoint(new Vector3(0.95f, 0.95f, 0));
         }
 
-        // IMPLEMENTASI INTERFACE IDamageable
+        // IDamageable implementation
         public void TakeDamage(float amount)
         {
-            // Jangan terima damage kalau sedang i-frames atau sudah mati
             if (isInvincible || currentHealth <= 0) return;
 
             currentHealth -= amount;
-            
-            // Beritahu UI kalau HP berubah
             OnHealthChanged?.Invoke(currentHealth, maxHealth);
 
-            // Memicu Screen Shake saat terkena hit (Polish & Juice Plus Point)
             CameraShake.TriggerShake(0.2f, 0.35f);
-            // Memicu Hit-Stop (Freeze Frame) untuk bobot impact berat
             CameraShake.TriggerHitStop(0.06f);
 
             if (currentHealth <= 0)
-            {
                 Die();
-            }
             else
-            {
-                // Mulai efek I-frames (Berdip & Kebal)
                 StartCoroutine(InvincibilityRoutine());
-            }
         }
 
+        // Blink effect during i-frames
         private IEnumerator InvincibilityRoutine()
         {
             isInvincible = true;
+            float blinkDuration = invincibilityDuration / 10f;
 
-            // Logika kedap-kedip (Blinking)
-            int blinks = 5; // Jumlah kedipan
-            float blinkDuration = invincibilityDuration / (blinks * 2);
-
-            for (int i = 0; i < blinks; i++)
+            for (int i = 0; i < 5; i++)
             {
-                if (spriteRenderer != null) spriteRenderer.color = new Color(1, 0, 0, 0.5f); // Merah Transparan
+                if (spriteRenderer != null) spriteRenderer.color = new Color(1, 0, 0, 0.5f);
                 yield return new WaitForSeconds(blinkDuration);
-                if (spriteRenderer != null) spriteRenderer.color = Color.gray; // Normal
+                if (spriteRenderer != null) spriteRenderer.color = Color.gray;
                 yield return new WaitForSeconds(blinkDuration);
             }
 
@@ -225,22 +190,19 @@ namespace BulletHell.Player
         public void ResetPlayer()
         {
             currentHealth = maxHealth;
+            currentHeat = 0f;
+            isOverheated = false;
+            isInvincible = false;
             transform.position = Vector3.zero;
             gameObject.SetActive(true);
-            isInvincible = false;
-            
-            // Update UI
+
             OnHealthChanged?.Invoke(currentHealth, maxHealth);
+            OnHeatChanged?.Invoke(currentHeat, 100f);
         }
 
         private void Die()
         {
-            Debug.Log("Player Mati! Game Over.");
-            
-            // Beritahu semua sistem kalau Player mati
             OnPlayerDeath?.Invoke();
-
-            // Untuk sementara, kita matikan objeknya
             gameObject.SetActive(false);
         }
     }

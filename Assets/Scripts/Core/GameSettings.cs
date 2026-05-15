@@ -6,10 +6,7 @@ namespace BulletHell.Core
         Overheat
     }
 
-    /// <summary>
-    /// Kelas statis untuk menyimpan pengaturan yang harus bertahan antar scene.
-    /// Tidak memerlukan GameObject — cukup diakses langsung: GameSettings.SelectedMode
-    /// </summary>
+    // Persists across scenes without needing a GameObject
     public static class GameSettings
     {
         public static GameMode SelectedMode { get; set; } = GameMode.Classic;

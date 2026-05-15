@@ -6,12 +6,10 @@ using BulletHell.Managers;
 
 namespace BulletHell.Enemies
 {
-    /// <summary>
-    /// Kelas induk untuk semua musuh. Mengotomatisasi HP, Hit-Flash, dan Kematian.
-    /// </summary>
+    // Abstract base for all enemies — centralizes HP, hit-flash, death, and collision
     public abstract class EnemyBase : MonoBehaviour, IDamageable
     {
-        [Header("Base Data & Visuals")]
+        [Header("Enemy Data")]
         [SerializeField] protected EnemyDataSO data;
         [SerializeField] protected SpriteRenderer spriteRenderer;
 
@@ -21,47 +19,32 @@ namespace BulletHell.Enemies
         protected virtual void Awake()
         {
             if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-            
+
+            // Cache prefab color in Awake to avoid capturing mid-flash color during pooling
             if (spriteRenderer != null)
-            {
-                // Mengambil warna langsung dari prefab saat pertama kali dibuat (Awake)
-                // Ini mencegah bug saat pooling jika musuh mati pas lagi hit-flash
                 initialColor = spriteRenderer.color;
-            }
         }
 
         protected virtual void OnEnable()
         {
             if (data != null)
-            {
                 currentHealth = data.maxHealth;
-            }
             else
-            {
-                Debug.LogWarning($"EnemyDataSO belum di-assign pada {gameObject.name}!");
-            }
+                Debug.LogWarning($"EnemyDataSO not assigned on {gameObject.name}!");
 
-            // Pastikan warna kembali normal saat keluar dari pool
             if (spriteRenderer != null)
-            {
                 spriteRenderer.color = GetCurrentBaseColor();
-            }
         }
 
         public virtual void TakeDamage(float amount)
         {
             currentHealth -= amount;
 
-            // Mencegah error jika musuh mati di frame yang sama saat disable
             if (gameObject.activeInHierarchy)
-            {
                 StartCoroutine(HitFlashRoutine());
-            }
 
             if (currentHealth <= 0)
-            {
                 Die();
-            }
         }
 
         protected virtual IEnumerator HitFlashRoutine()
@@ -74,10 +57,7 @@ namespace BulletHell.Enemies
             }
         }
 
-        /// <summary>
-        /// Mengembalikan warna yang harus ditampilkan setelah flash selesai.
-        /// Bisa di-override oleh Boss (misal saat masuk fase 2).
-        /// </summary>
+        // Override this to change the "resting" color (e.g. Boss phase 2)
         protected virtual Color GetCurrentBaseColor()
         {
             return initialColor;
@@ -85,16 +65,10 @@ namespace BulletHell.Enemies
 
         protected virtual void Die()
         {
-            // 1. Tambah skor & Munculkan Floating Score
             if (GameManager.Instance != null && data != null)
-            {
                 GameManager.Instance.AddScore(data.scoreValue, transform.position);
-            }
 
-            // 2. Efek Visual Shatter
             SpawnShatterEffect();
-
-            // 3. Kembali ke Object Pool
             PoolManager.Instance.ReturnToPool(gameObject);
         }
 
@@ -105,22 +79,20 @@ namespace BulletHell.Enemies
             GameObject explosion = PoolManager.Instance.GetPooledObject("ShatterEffect", transform.position, Quaternion.identity);
             if (explosion != null)
             {
-                // Warna shatter tetap mengambil dari SO agar konsisten secara desain
                 var shatter = explosion.GetComponent<BulletHell.VFX.ShatterExplosion>();
                 if (shatter != null) shatter.Setup(data.shatterColor);
             }
         }
 
-        // Common utility untuk tabrakan dengan Player
+        // Shared collision handler — call from OnCollisionEnter2D in child classes
         protected virtual void HandlePlayerCollision(GameObject other, float contactDamage = 10f)
         {
             if (other.CompareTag("Player"))
             {
                 IDamageable player = other.GetComponentInParent<IDamageable>();
                 if (player != null)
-                {
                     player.TakeDamage(contactDamage);
-                }
+
                 Die();
             }
         }

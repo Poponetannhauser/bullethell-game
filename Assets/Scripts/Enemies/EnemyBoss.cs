@@ -13,25 +13,26 @@ namespace BulletHell.Enemies
         [SerializeField] private Transform firePoint;
         [SerializeField] private SpriteRenderer outlineRenderer;
 
-        [Header("Movement Settings")]
+        [Header("Movement")]
         [SerializeField] private float entrySpeed = 2f;
-        [SerializeField] private float targetScreenYOffset = 2.5f; 
-        [SerializeField] private float bounceSpeed = 4f; 
-        [SerializeField] private float phase2SpeedMultiplier = 1.4f; 
+        [SerializeField] private float targetScreenYOffset = 2.5f;
+        [SerializeField] private float bounceSpeed = 4f;
+        [SerializeField] private float phase2SpeedMultiplier = 1.4f;
 
-        [Header("Phase 1: Radial Ring Shot")]
+        [Header("Phase 1: Radial Ring")]
         [SerializeField] private int radialBulletCount = 12;
         [SerializeField] private float phase1FireRate = 2.5f;
 
-        [Header("Phase 2: Spiral Rotating Shot")]
+        [Header("Phase 2: Spiral")]
         [SerializeField] private float phase2FireRate = 0.15f;
         [SerializeField] private float spiralAngleIncrement = 20f;
-        [SerializeField] private Color phase2Color = new Color(1f, 0.4f, 0f); 
+        [SerializeField] private Color phase2Color = new Color(1f, 0.4f, 0f);
 
         private Rigidbody2D rb;
         private Transform playerTransform;
         private bool isEntering;
         private bool isPhase2;
+        private bool isDead;
         private float nextFireTime;
         private float currentSpiralAngle;
         private float targetY;
@@ -46,11 +47,15 @@ namespace BulletHell.Enemies
             rb = GetComponent<Rigidbody2D>();
         }
 
+        // Reset before base.OnEnable so GetCurrentBaseColor returns phase 1 color
         protected override void OnEnable()
         {
-            base.OnEnable();
-            isEntering = true;
             isPhase2 = false;
+            isDead = false;
+
+            base.OnEnable();
+
+            isEntering = true;
             currentSpiralAngle = 0f;
 
             GameObject player = GameObject.FindWithTag("Player");
@@ -60,14 +65,14 @@ namespace BulletHell.Enemies
             if (mainCam != null)
             {
                 targetY = mainCam.orthographicSize - targetScreenYOffset;
-                minCamBounds = mainCam.ViewportToWorldPoint(new Vector3(0.1f, 0.4f, 0)); 
+                minCamBounds = mainCam.ViewportToWorldPoint(new Vector3(0.1f, 0.4f, 0));
                 maxCamBounds = mainCam.ViewportToWorldPoint(new Vector3(0.9f, 0.9f, 0));
             }
         }
 
         void FixedUpdate()
         {
-            if (data == null) return;
+            if (data == null || isDead) return;
 
             if (isEntering)
             {
@@ -78,24 +83,24 @@ namespace BulletHell.Enemies
                 else
                 {
                     isEntering = false;
-                    nextFireTime = Time.time + 1f; 
-                    
-                    float randomAngle = Random.Range(20f, 160f); 
+                    nextFireTime = Time.time + 1f;
+
+                    float randomAngle = Random.Range(20f, 160f);
                     if (Random.value > 0.5f) randomAngle += 180f;
                     moveDirection = new Vector2(Mathf.Cos(randomAngle * Mathf.Deg2Rad), Mathf.Sin(randomAngle * Mathf.Deg2Rad)).normalized;
                 }
             }
             else
             {
-                float currentSpeed = isPhase2 ? bounceSpeed * phase2SpeedMultiplier : bounceSpeed;
-                rb.linearVelocity = moveDirection * currentSpeed;
+                float speed = isPhase2 ? bounceSpeed * phase2SpeedMultiplier : bounceSpeed;
+                rb.linearVelocity = moveDirection * speed;
 
+                // Bounce off camera boundaries with slight angle randomization
                 Vector3 pos = transform.position;
                 bool bounced = false;
 
                 if (pos.x <= minCamBounds.x && moveDirection.x < 0) { moveDirection.x = -moveDirection.x; bounced = true; }
                 else if (pos.x >= maxCamBounds.x && moveDirection.x > 0) { moveDirection.x = -moveDirection.x; bounced = true; }
-
                 if (pos.y <= minCamBounds.y && moveDirection.y < 0) { moveDirection.y = -moveDirection.y; bounced = true; }
                 else if (pos.y >= maxCamBounds.y && moveDirection.y > 0) { moveDirection.y = -moveDirection.y; bounced = true; }
 
@@ -109,9 +114,10 @@ namespace BulletHell.Enemies
 
         void Update()
         {
-            if (isEntering || data == null) return;
+            if (isEntering || data == null || isDead) return;
 
-            if (!isPhase2 && currentHealth <= data.maxHealth * 0.5f) EnterPhase2();
+            if (!isPhase2 && currentHealth <= data.maxHealth * 0.5f)
+                EnterPhase2();
 
             if (Time.time >= nextFireTime)
             {
@@ -120,26 +126,25 @@ namespace BulletHell.Enemies
             }
         }
 
+        // Phase 1: fires bullets in a circular ring
         private void ExecutePhase1Attack()
         {
             if (string.IsNullOrEmpty(data.bulletPoolKey) || firePoint == null) return;
             float angleStep = 360f / radialBulletCount;
-            float currentAngle = 0f;
+            float angle = 0f;
             for (int i = 0; i < radialBulletCount; i++)
             {
-                Quaternion bulletRotation = Quaternion.Euler(0, 0, currentAngle);
-                PoolManager.Instance.GetPooledObject(data.bulletPoolKey, firePoint.position, bulletRotation);
-                currentAngle += angleStep;
+                PoolManager.Instance.GetPooledObject(data.bulletPoolKey, firePoint.position, Quaternion.Euler(0, 0, angle));
+                angle += angleStep;
             }
         }
 
+        // Phase 2: fires bullets in a continuously rotating spiral
         private void ExecutePhase2Attack()
         {
             if (string.IsNullOrEmpty(data.bulletPoolKey) || firePoint == null) return;
-            Quaternion bulletRotation = Quaternion.Euler(0, 0, currentSpiralAngle);
-            PoolManager.Instance.GetPooledObject(data.bulletPoolKey, firePoint.position, bulletRotation);
-            currentSpiralAngle += spiralAngleIncrement;
-            if (currentSpiralAngle >= 360f) currentSpiralAngle -= 360f;
+            PoolManager.Instance.GetPooledObject(data.bulletPoolKey, firePoint.position, Quaternion.Euler(0, 0, currentSpiralAngle));
+            currentSpiralAngle = (currentSpiralAngle + spiralAngleIncrement) % 360f;
         }
 
         private void EnterPhase2()
@@ -153,18 +158,47 @@ namespace BulletHell.Enemies
             return isPhase2 ? phase2Color : initialColor;
         }
 
+        // Multi-stage death: freeze, chain explosions, then final blast
         protected override void Die()
         {
-            // Juice masif untuk boss
-            CameraShake.TriggerShake(0.8f, 0.6f);
-            CameraShake.TriggerHitStop(0.15f);
+            if (isDead) return;
+            StartCoroutine(DeathSequenceRoutine());
+        }
 
-            // Efek pecah berantai
+        private IEnumerator DeathSequenceRoutine()
+        {
+            isDead = true;
+            rb.linearVelocity = Vector2.zero;
+            nextFireTime = Time.time + 100f;
+
             Color shatterColor = isPhase2 ? phase2Color : data.shatterColor;
-            SpawnShatter(transform.position, shatterColor);
-            SpawnShatter(transform.position + Vector3.left * 1.5f, shatterColor);
-            SpawnShatter(transform.position + Vector3.right * 1.5f, shatterColor);
-            SpawnShatter(transform.position + Vector3.up * 1.5f, shatterColor);
+            float duration = 2.0f;
+            float timer = 0f;
+
+            // Chain explosions with screen shake
+            while (timer < duration)
+            {
+                Vector3 offset = new Vector3(Random.Range(-1.5f, 1.5f), Random.Range(-1.5f, 1.5f), 0);
+                SpawnShatter(transform.position + offset, shatterColor);
+                CameraShake.TriggerShake(0.1f, 0.2f);
+
+                if (spriteRenderer != null)
+                    spriteRenderer.color = (timer % 0.2f > 0.1f) ? Color.white : GetCurrentBaseColor();
+
+                float wait = Random.Range(0.05f, 0.15f);
+                yield return new WaitForSeconds(wait);
+                timer += wait;
+            }
+
+            // Final explosion burst
+            CameraShake.TriggerShake(1.0f, 0.8f);
+            CameraShake.TriggerHitStop(0.2f);
+
+            for (int i = 0; i < 8; i++)
+            {
+                Vector3 finalOffset = Random.insideUnitCircle * 2f;
+                SpawnShatter(transform.position + finalOffset, shatterColor);
+            }
 
             if (GameManager.Instance != null && data != null)
             {
@@ -190,7 +224,7 @@ namespace BulletHell.Enemies
             if (collision.gameObject.CompareTag("Player"))
             {
                 var player = collision.gameObject.GetComponentInParent<IDamageable>();
-                if (player != null) player.TakeDamage(25f); 
+                if (player != null) player.TakeDamage(25f);
             }
         }
     }
