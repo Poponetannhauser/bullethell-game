@@ -4,7 +4,7 @@ using BulletHell.Core;
 
 namespace BulletHell.UI
 {
-    // Displays top 5 scores on the main menu leaderboard panel
+    // Display top 5
     public class LeaderboardUI : MonoBehaviour
     {
         [SerializeField] private TextMeshProUGUI scoreListText;

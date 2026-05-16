@@ -20,16 +20,13 @@ namespace BulletHell.Player
         {
             if (data == null) return;
 
-            // Berikan kecepatan saat peluru aktif
             rb.linearVelocity = transform.up * data.bulletSpeed;
             
-            // Kembalikan ke pool setelah beberapa detik (Life Time)
             Invoke("ReturnToPool", data.bulletLifeTime);
         }
 
         void OnDisable()
         {
-            // Batalkan Invoke kalau peluru mati sebelum waktunya (misal kena musuh)
             CancelInvoke();
         }
 
@@ -50,7 +47,6 @@ namespace BulletHell.Player
 
         private void CheckCollision(GameObject other)
         {
-            // Jangan sampai Player bunuh diri pakai peluru sendiri (Friendly Fire)
             if (other.CompareTag("Player")) return;
 
             IDamageable damageable = other.GetComponentInParent<IDamageable>();
@@ -58,8 +54,6 @@ namespace BulletHell.Player
             if (damageable != null)
             {
                 damageable.TakeDamage(data.damage);
-                
-                // Peluru hancur setelah kena target
                 ReturnToPool();
             }
         }

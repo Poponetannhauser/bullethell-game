@@ -6,7 +6,7 @@ namespace BulletHell.Core
         Overheat
     }
 
-    // Persists across scenes without needing a GameObject
+    // Menyimpan pilihan game mode
     public static class GameSettings
     {
         public static GameMode SelectedMode { get; set; } = GameMode.Classic;

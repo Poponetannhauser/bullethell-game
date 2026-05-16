@@ -24,7 +24,7 @@ namespace BulletHell.Core
         public List<ScoreEntry> scores = new List<ScoreEntry>();
     }
 
-    // Handles local Top 5 highscore persistence via PlayerPrefs (JSON)
+    // Menyimpan 5 skor tertinggi secara lokal menggunakan PlayerPrefs (format JSON)
     public static class LeaderboardSystem
     {
         private const string SAVE_KEY = "LocalLeaderboard";

@@ -55,7 +55,7 @@ namespace BulletHell.Managers
             obj.SetActive(false);
             obj.transform.SetParent(this.transform);
 
-            // Add PooledObject component to track its poolKey
+            // Gunakan component PooledObject untuk tracking poolKey
             PooledObject pooledObj = obj.GetComponent<PooledObject>();
             if (pooledObj == null) pooledObj = obj.AddComponent<PooledObject>();
             pooledObj.poolKey = pool.poolKey;
@@ -86,13 +86,11 @@ namespace BulletHell.Managers
             }
             else
             {
-                // Optional: Expand pool if empty
                 Pool pool = pools.Find(p => p.poolKey == poolKey);
                 objectToSpawn = CreateNewObjectInPool(pool, queue);
-                queue.Dequeue(); // Remove from queue since we're about to use it
+                queue.Dequeue();
             }
 
-            // Set transform BEFORE activating so OnEnable gets the correct rotation
             if (useTransform)
             {
                 objectToSpawn.transform.position = position;
@@ -119,10 +117,8 @@ namespace BulletHell.Managers
             poolDictionary[pooledObj.poolKey].Enqueue(obj);
         }
 
-        // FUNGSI BARU: Untuk membersihkan layar tanpa reload scene
         public void ClearAllActiveObjects()
         {
-            // Cari semua objek yang punya label PooledObject di scene
             PooledObject[] activeObjects = FindObjectsByType<PooledObject>(FindObjectsSortMode.None);
             
             foreach (PooledObject obj in activeObjects)

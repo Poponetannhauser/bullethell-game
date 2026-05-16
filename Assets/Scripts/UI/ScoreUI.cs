@@ -9,11 +9,10 @@ namespace BulletHell.UI
         [Header("References")]
         [SerializeField] private TextMeshProUGUI timerText;
         [SerializeField] private TextMeshProUGUI scoreText;
-        [SerializeField] private TextMeshProUGUI highScoreText; // Menampilkan skor tertinggi persisten
+        [SerializeField] private TextMeshProUGUI highScoreText;
 
         void Start()
         {
-            // Berlangganan ke event score di GameManager
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.OnScoreChanged += UpdateScoreDisplay;
@@ -24,7 +23,6 @@ namespace BulletHell.UI
         {
             if (GameManager.Instance != null && timerText != null)
             {
-                // Format waktu: Menit:Detik
                 float t = GameManager.Instance.survivalTime;
                 string minutes = ((int)t / 60).ToString("00");
                 string seconds = (t % 60).ToString("00");
@@ -36,7 +34,7 @@ namespace BulletHell.UI
         {
             if (scoreText != null)
             {
-                scoreText.text = "Score: " + currentScore.ToString("N0"); // Pakai pemisah ribuan
+                scoreText.text = "Score: " + currentScore.ToString("N0");
             }
 
             if (highScoreText != null)

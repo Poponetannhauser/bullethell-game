@@ -29,7 +29,7 @@ namespace BulletHell.UI
             if (settingsPanel != null) settingsPanel.SetActive(false);
         }
 
-        // Mode selection — sets GameSettings before loading game scene
+        // Mode selection
         public void PlayClassicMode()
         {
             AudioManager.PlayUIClick();
@@ -44,7 +44,7 @@ namespace BulletHell.UI
             SceneManager.LoadScene(gameSceneName);
         }
 
-        // Panel navigation — hides main buttons, shows sub-panel
+        // Panel navigation
         public void OpenLeaderboard()
         {
             AudioManager.PlayUIClick();
@@ -76,7 +76,7 @@ namespace BulletHell.UI
             #endif
         }
 
-        // Called by MenuButtonHover to show/hide mode descriptions
+        // Show/hide mode descriptions
         public void ShowDescription(string text)
         {
             if (descriptionText != null) descriptionText.text = text;

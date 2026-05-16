@@ -8,7 +8,7 @@ namespace BulletHell.Data
         public float damage;
         public float bulletSpeed;
         public float fireRate;
-        public string bulletPoolKey; // Menyambungkan SO dengan PoolManager poolKey
+        public string bulletPoolKey;
         public float bulletLifeTime;
 
         [Header("Overheat Stats (Mode Overheat Only)")]

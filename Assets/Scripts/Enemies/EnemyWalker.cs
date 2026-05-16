@@ -1,8 +1,6 @@
 using UnityEngine;
 using System.Collections;
 using BulletHell.Managers;
-using BulletHell.Data;
-using BulletHell.Core;
 
 namespace BulletHell.Enemies
 {
@@ -21,8 +19,6 @@ namespace BulletHell.Enemies
         protected override void OnEnable()
         {
             base.OnEnable();
-            
-            // Cari player di scene
             GameObject player = GameObject.FindWithTag("Player");
             if (player != null) playerTransform = player.transform;
         }
@@ -31,21 +27,12 @@ namespace BulletHell.Enemies
         {
             if (playerTransform == null || data == null) return;
 
-            Vector2 direction = (playerTransform.position - transform.position).normalized;
-            rb.linearVelocity = direction * data.moveSpeed;
-
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
-            rb.rotation = angle;
+            Vector2 dir = (playerTransform.position - transform.position).normalized;
+            rb.linearVelocity = dir * data.moveSpeed;
+            rb.rotation = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90f;
         }
 
-        private void OnCollisionEnter2D(Collision2D collision)
-        {
-            HandlePlayerCollision(collision.gameObject);
-        }
-
-        private void OnTriggerEnter2D(Collider2D collision)
-        {
-            HandlePlayerCollision(collision.gameObject);
-        }
+        private void OnCollisionEnter2D(Collision2D col) => HandlePlayerCollision(col.gameObject);
+        private void OnTriggerEnter2D(Collider2D col) => HandlePlayerCollision(col.gameObject);
     }
 }

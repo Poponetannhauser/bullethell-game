@@ -6,7 +6,7 @@ using BulletHell.Managers;
 
 namespace BulletHell.Enemies
 {
-    // Abstract base for all enemies — centralizes HP, hit-flash, death, and collision
+    // Base class untuk logika HP, hit-flash, die, dan collision
     public abstract class EnemyBase : MonoBehaviour, IDamageable
     {
         [Header("Enemy Data")]
@@ -20,7 +20,6 @@ namespace BulletHell.Enemies
         {
             if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
-            // Cache prefab color in Awake to avoid capturing mid-flash color during pooling
             if (spriteRenderer != null)
                 initialColor = spriteRenderer.color;
         }
@@ -57,7 +56,7 @@ namespace BulletHell.Enemies
             }
         }
 
-        // Override this to change the "resting" color (e.g. Boss phase 2)
+        // Override warna untuk boss fase 2
         protected virtual Color GetCurrentBaseColor()
         {
             return initialColor;
@@ -85,7 +84,7 @@ namespace BulletHell.Enemies
             }
         }
 
-        // Shared collision handler — call from OnCollisionEnter2D in child classes
+        // Collision handler
         protected virtual void HandlePlayerCollision(GameObject other)
         {
             if (other.CompareTag("Player"))

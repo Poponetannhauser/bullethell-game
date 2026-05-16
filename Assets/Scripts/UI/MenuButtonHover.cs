@@ -5,7 +5,7 @@ using BulletHell.Managers;
 
 namespace BulletHell.UI
 {
-    // Attach to menu buttons that need hover effects and/or descriptions
+    // Hover effects
     public class MenuButtonHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         [Header("References")]

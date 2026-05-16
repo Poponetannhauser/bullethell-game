@@ -68,7 +68,7 @@ namespace BulletHell.Player
             rb.linearVelocity = moveInput * moveSpeed;
         }
 
-        // Clamp player position to stay within camera bounds
+        // Clamp posisi player agar tidak keluar dari batas layar kamera
         void LateUpdate()
         {
             Vector3 pos = transform.position;
@@ -90,7 +90,7 @@ namespace BulletHell.Player
             }
         }
 
-        // Passive heat dissipation — only runs in Overheat mode
+        // Overheat passive cooling
         private void HandleOverheatCooling()
         {
             if (GameSettings.SelectedMode != GameMode.Overheat || weaponData == null) return;
@@ -107,7 +107,7 @@ namespace BulletHell.Player
 
             PoolManager.Instance.GetPooledObject(weaponData.bulletPoolKey, firePoint.position, firePoint.rotation);
 
-            // Accumulate heat in Overheat mode
+            // Overheat accumulation
             if (GameSettings.SelectedMode == GameMode.Overheat)
             {
                 currentHeat += weaponData.heatPerShot;
@@ -123,7 +123,7 @@ namespace BulletHell.Player
             AudioManager.PlaySFX(AudioManager.Instance?.playerShoot, 0.4f);
         }
 
-        // Locks weapon for a duration when heat reaches 100%
+        // Overheat cooldown
         private IEnumerator OverheatRoutine()
         {
             isOverheated = true;
@@ -158,7 +158,6 @@ namespace BulletHell.Player
             maxBounds = cam.ViewportToWorldPoint(new Vector3(0.95f, 0.95f, 0));
         }
 
-        // IDamageable implementation
         public void TakeDamage(float amount)
         {
             if (isInvincible || currentHealth <= 0) return;
@@ -176,7 +175,7 @@ namespace BulletHell.Player
                 StartCoroutine(InvincibilityRoutine());
         }
 
-        // Blink effect during i-frames
+        // I-frame blink
         private IEnumerator InvincibilityRoutine()
         {
             isInvincible = true;

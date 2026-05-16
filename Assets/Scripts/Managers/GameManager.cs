@@ -64,14 +64,14 @@ namespace BulletHell.Managers
 
             survivalTime += Time.deltaTime;
 
-            // Boss spawns at the 5-minute mark
+            // Boss spawn logic
             if (!isBossPhaseTriggered && survivalTime >= 300f)
             {
                 isBossPhaseTriggered = true;
                 StartCoroutine(TransitionToBossPhaseRoutine());
             }
 
-            // Dev shortcut: skip 60 seconds
+            // Dev tool timeskip 60s
             if (Keyboard.current != null && Keyboard.current.f1Key.wasPressedThisFrame)
             {
                 survivalTime += 60f;
@@ -79,7 +79,7 @@ namespace BulletHell.Managers
             }
         }
 
-        // Clears the arena of regular enemies, then spawns the boss
+        // Bersihkan arena dari musuh biasa, lalu spawn Boss
         private IEnumerator TransitionToBossPhaseRoutine()
         {
             if (spawnManager != null) spawnManager.StopSpawning();
@@ -120,7 +120,6 @@ namespace BulletHell.Managers
             if (gameOverPanel != null) gameOverPanel.SetActive(true);
         }
 
-        // Called by EnemyBoss when defeated
         public void HandleVictory()
         {
             isGameActive = false;
@@ -129,7 +128,7 @@ namespace BulletHell.Managers
             if (victoryPanel != null) victoryPanel.SetActive(true);
         }
 
-        // Called by UI restart button
+        // Restart
         public void RestartGame()
         {
             PoolManager.Instance.ClearAllActiveObjects();

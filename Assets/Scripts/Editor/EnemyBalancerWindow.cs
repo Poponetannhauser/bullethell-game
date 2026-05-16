@@ -64,10 +64,7 @@ namespace BulletHell.Editor
 
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
 
-            // ═══════════════════════════════════════════════
-            //  SECTION: WEAPON / PLAYER STATS
-            // ═══════════════════════════════════════════════
-            EditorGUILayout.LabelField("🔫 Weapon / Player Stats", EditorStyles.whiteLargeLabel);
+            EditorGUILayout.LabelField("Weapon / Player Stats", EditorStyles.whiteLargeLabel);
             
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
             EditorGUILayout.LabelField("Asset", GUILayout.Width(130));
@@ -111,10 +108,7 @@ namespace BulletHell.Editor
 
             GUILayout.Space(20);
 
-            // ═══════════════════════════════════════════════
-            //  SECTION: ENEMY STATS
-            // ═══════════════════════════════════════════════
-            EditorGUILayout.LabelField("👾 Enemy Stats", EditorStyles.whiteLargeLabel);
+            EditorGUILayout.LabelField("Enemy Stats", EditorStyles.whiteLargeLabel);
 
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
             EditorGUILayout.LabelField("Asset", GUILayout.Width(130));

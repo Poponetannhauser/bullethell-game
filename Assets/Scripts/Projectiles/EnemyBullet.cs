@@ -20,10 +20,8 @@ namespace BulletHell.Projectiles
         {
             if (data == null) return;
 
-            // Berikan kecepatan saat peluru aktif
             rb.linearVelocity = transform.up * data.bulletSpeed;
             
-            // Kembalikan ke pool setelah durasi habis
             Invoke("ReturnToPool", data.bulletLifeTime);
         }
 
@@ -49,7 +47,7 @@ namespace BulletHell.Projectiles
 
         private void CheckCollision(GameObject other)
         {
-            // Jangan melukai sesama musuh (Anti Friendly Fire untuk musuh)
+            // Anti friendly fire
             if (other.CompareTag("Enemy")) return;
 
             IDamageable damageable = other.GetComponentInParent<IDamageable>();

@@ -6,7 +6,7 @@ using System.Collections;
 
 namespace BulletHell.UI
 {
-    // Handles pause/resume with Escape key, includes 3-second countdown on resume
+    // Pause/resume
     public class PauseMenuUI : MonoBehaviour
     {
         [Header("References")]
@@ -40,7 +40,7 @@ namespace BulletHell.UI
             if (pausePanel != null) pausePanel.SetActive(true);
         }
 
-        // Starts a 3-2-1-GO countdown before unpausing
+        // Unpause countdown
         public void ResumeGame()
         {
             if (isCountingDown) return;
@@ -54,7 +54,6 @@ namespace BulletHell.UI
             if (pausePanel != null) pausePanel.SetActive(false);
             if (countdownText != null) countdownText.gameObject.SetActive(true);
 
-            // Uses WaitForSecondsRealtime since Time.timeScale is 0
             for (int count = 3; count > 0; count--)
             {
                 if (countdownText != null) countdownText.text = count.ToString();

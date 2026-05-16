@@ -1,5 +1,5 @@
 using UnityEngine;
-using TMPro; // Pastikan TextMeshPro sudah terinstal di project-mu
+using TMPro;
 
 namespace BulletHell.UI
 {

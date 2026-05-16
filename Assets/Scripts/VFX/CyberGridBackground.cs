@@ -26,11 +26,9 @@ namespace BulletHell.VFX
             Camera cam = Camera.main;
             if (cam == null) return;
 
-            // Dapatkan batas dunia layar secara dinamis
             Vector3 bottomLeft = cam.ViewportToWorldPoint(new Vector3(0, 0, cam.nearClipPlane));
             Vector3 topRight = cam.ViewportToWorldPoint(new Vector3(1, 1, cam.nearClipPlane));
 
-            // Beri kelonggaran padding agar wrapping garis mulus di luar batas layar
             float minX = bottomLeft.x - gridSize * 2f;
             float maxX = topRight.x + gridSize * 2f;
             minY = bottomLeft.y - gridSize * 2f;
@@ -39,7 +37,6 @@ namespace BulletHell.VFX
             float width = maxX - minX;
             float height = maxY - minY;
 
-            // Berbagi tekstur 1x1 putih murni untuk efisiensi RAM mutlak
             if (sharedSprite == null)
             {
                 Texture2D tex = new Texture2D(1, 1);
@@ -48,13 +45,10 @@ namespace BulletHell.VFX
                 sharedSprite = Sprite.Create(tex, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 1f);
             }
 
-            // 1. Buat Pilar Garis Vertikal Statis (Membentuk jalur grid presisi)
             for (float x = Mathf.Floor(minX / gridSize) * gridSize; x <= maxX; x += gridSize)
             {
                 CreateLinePiece(new Vector3(x, (minY + maxY) * 0.5f, 10f), new Vector3(lineThickness, height, 1f), false);
             }
-
-            // 2. Buat Garis Horizontal Dinamis (Terus bergerak ke bawah seperti NieR:Automata UI)
             for (float y = Mathf.Floor(minY / gridSize) * gridSize; y <= maxY; y += gridSize)
             {
                 Transform hLine = CreateLinePiece(new Vector3((minX + maxX) * 0.5f, y, 10f), new Vector3(width, lineThickness, 1f), true);
@@ -72,7 +66,6 @@ namespace BulletHell.VFX
             SpriteRenderer sr = lineObj.AddComponent<SpriteRenderer>();
             sr.sprite = sharedSprite;
             sr.color = lineColor;
-            // Taruh di urutan paling belakang agar tidak menutupi peluru dan pemain
             sr.sortingOrder = -200;
 
             return lineObj.transform;
@@ -83,12 +76,9 @@ namespace BulletHell.VFX
             float moveDist = scrollSpeed * Time.deltaTime;
             float totalHeight = maxY - minY;
 
-            // Gulir setiap garis horizontal ke bawah
             foreach (Transform line in horizontalLines)
             {
                 line.position += Vector3.down * moveDist;
-
-                // Ketika melewati batas bawah layar, bungkus ulang (wrap around) ke atas
                 if (line.position.y < minY)
                 {
                     line.position += Vector3.up * totalHeight;

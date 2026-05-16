@@ -30,7 +30,6 @@ namespace BulletHell.VFX
         public void Setup(Color color)
         {
             currentColor = color;
-            // Update warna segera jika sudah enable
             if (renderers != null)
             {
                 foreach (var sr in renderers) sr.color = color;
@@ -41,7 +40,6 @@ namespace BulletHell.VFX
         {
             if (isInitialized) return;
 
-            // Optimasi memori: Bagikan 1 tekstur putih murni untuk semua pecahan
             if (sharedSquareSprite == null)
             {
                 Texture2D tex = new Texture2D(1, 1);
@@ -75,11 +73,9 @@ namespace BulletHell.VFX
         {
             Initialize();
 
-            // Atur ulang posisi ke tengah dan tembakkan dengan arah/kecepatan acak
             for (int i = 0; i < pieceCount; i++)
             {
                 pieces[i].localPosition = Vector3.zero;
-                // Skala acak memberikan kesan pecahan bervariasi
                 pieces[i].localScale = Vector3.one * Random.Range(0.15f, 0.4f);
                 renderers[i].color = currentColor;
 
@@ -98,13 +94,11 @@ namespace BulletHell.VFX
             {
                 elapsed += Time.deltaTime;
                 float progress = elapsed / lifetime;
-                float alpha = 1f - progress; // Fade out mulus
+                float alpha = 1f - progress; 
 
                 for (int i = 0; i < pieceCount; i++)
                 {
-                    // Terbang menyebar
                     pieces[i].localPosition += (Vector3)velocities[i] * Time.deltaTime;
-                    // Berputar liar
                     pieces[i].Rotate(0, 0, Random.Range(-400f, 400f) * Time.deltaTime);
 
                     Color c = renderers[i].color;
@@ -115,7 +109,6 @@ namespace BulletHell.VFX
                 yield return null;
             }
 
-            // Selesai memudar, kembalikan ke gudang Pool
             PoolManager.Instance.ReturnToPool(gameObject);
         }
     }

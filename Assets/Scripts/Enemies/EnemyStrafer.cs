@@ -1,19 +1,21 @@
 using System.Collections;
 using UnityEngine;
 using BulletHell.Managers;
-using BulletHell.Data;
-using BulletHell.Core;
 
 namespace BulletHell.Enemies
 {
+    // Behavior:
+    // Bergerak dengan pola gelombang sinus sambil mendekati tengah layar
+    // Menembak dalam burst pendek ke arah player
+
     [RequireComponent(typeof(Rigidbody2D))]
     public class EnemyStrafer : EnemyBase
     {
         [Header("Strafe Settings")]
         [SerializeField] private Transform firePoint;
-        [SerializeField] private float strafeFrequency = 2f; 
-        [SerializeField] private float strafeAmplitude = 3f; 
-        [SerializeField] private float advanceSpeedMultiplier = 0.5f; 
+        [SerializeField] private float strafeFrequency = 2f;
+        [SerializeField] private float strafeAmplitude = 3f;
+        [SerializeField] private float advanceSpeedMultiplier = 0.5f;
 
         [Header("Burst Settings")]
         [SerializeField] private int burstCount = 3;
@@ -39,7 +41,7 @@ namespace BulletHell.Enemies
             GameObject player = GameObject.FindWithTag("Player");
             if (player != null) playerTransform = player.transform;
 
-            entryDirection = (((Vector2)Vector3.zero) - (Vector2)transform.position).normalized;
+            entryDirection = ((Vector2)Vector3.zero - (Vector2)transform.position).normalized;
             if (entryDirection == Vector2.zero) entryDirection = Vector2.down;
         }
 
@@ -47,17 +49,15 @@ namespace BulletHell.Enemies
         {
             if (data == null) return;
 
-            Vector2 perpendicularDir = new Vector2(-entryDirection.y, entryDirection.x);
-            Vector2 advanceVelocity = entryDirection * (data.moveSpeed * advanceSpeedMultiplier);
-            Vector2 strafeVelocity = perpendicularDir * Mathf.Sin(Time.time * strafeFrequency) * strafeAmplitude;
-            
-            rb.linearVelocity = advanceVelocity + strafeVelocity;
+            Vector2 perp = new Vector2(-entryDirection.y, entryDirection.x);
+            Vector2 advance = entryDirection * (data.moveSpeed * advanceSpeedMultiplier);
+            Vector2 strafe = perp * Mathf.Sin(Time.time * strafeFrequency) * strafeAmplitude;
+            rb.linearVelocity = advance + strafe;
 
             if (playerTransform != null)
             {
-                Vector2 aimDir = (playerTransform.position - transform.position).normalized;
-                float angle = Mathf.Atan2(aimDir.y, aimDir.x) * Mathf.Rad2Deg - 90f;
-                rb.rotation = angle;
+                Vector2 aim = (playerTransform.position - transform.position).normalized;
+                rb.rotation = Mathf.Atan2(aim.y, aim.x) * Mathf.Rad2Deg - 90f;
             }
         }
 
@@ -75,27 +75,17 @@ namespace BulletHell.Enemies
         private IEnumerator ShootBurstRoutine()
         {
             isShootingBurst = true;
-
             for (int i = 0; i < burstCount; i++)
             {
-                if (data != null && !string.IsNullOrEmpty(data.bulletPoolKey) && firePoint != null)
-                {
+                if (!string.IsNullOrEmpty(data.bulletPoolKey) && firePoint != null)
                     PoolManager.Instance.GetPooledObject(data.bulletPoolKey, firePoint.position, firePoint.rotation);
-                }
+
                 yield return new WaitForSeconds(burstInterval);
             }
-
             isShootingBurst = false;
         }
 
-        private void OnCollisionEnter2D(Collision2D collision)
-        {
-            HandlePlayerCollision(collision.gameObject);
-        }
-
-        private void OnTriggerEnter2D(Collider2D collision)
-        {
-            HandlePlayerCollision(collision.gameObject);
-        }
+        private void OnCollisionEnter2D(Collision2D col) => HandlePlayerCollision(col.gameObject);
+        private void OnTriggerEnter2D(Collider2D col) => HandlePlayerCollision(col.gameObject);
     }
 }

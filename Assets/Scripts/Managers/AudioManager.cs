@@ -4,7 +4,6 @@ using System.Collections;
 
 namespace BulletHell.Managers
 {
-    // Central manager for playing SFX and looping BGM with smooth crossfade
     public class AudioManager : MonoBehaviour
     {
         public static AudioManager Instance { get; private set; }
@@ -31,7 +30,6 @@ namespace BulletHell.Managers
         public AudioClip uiClick;
         public AudioClip uiHover;
 
-        // Tracks which AudioSource is currently the "active" one
         private AudioSource activeSource;
         private Coroutine crossfadeCoroutine;
 
@@ -62,7 +60,7 @@ namespace BulletHell.Managers
             CrossfadeTo(targetClip);
         }
 
-        // Smoothly transitions from current music to a new clip
+        // Smooth transition
         public void CrossfadeTo(AudioClip newClip)
         {
             if (newClip == null)
@@ -70,8 +68,6 @@ namespace BulletHell.Managers
                 StopMusic();
                 return;
             }
-
-            // If the new clip is already playing, do nothing
             if (activeSource.clip == newClip && activeSource.isPlaying) return;
 
             if (crossfadeCoroutine != null) StopCoroutine(crossfadeCoroutine);
@@ -80,7 +76,7 @@ namespace BulletHell.Managers
 
         private IEnumerator CrossfadeRoutine(AudioClip newClip)
         {
-            // Pick the inactive source to play the new music
+            // Menentukan sumber audio yang tidak aktif untuk play bgm baru
             AudioSource nextSource = (activeSource == musicSourceA) ? musicSourceB : musicSourceA;
 
             nextSource.clip = newClip;
@@ -116,7 +112,7 @@ namespace BulletHell.Managers
         {
             if (Instance == null || clip == null) return;
 
-            // Slight pitch randomization keeps repetitive sounds from sounding robotic
+            // Variasi pitch kecil agar suara berulang tidak terdengar robotik
             Instance.sfxSource.pitch = 1f + Random.Range(-pitchRange, pitchRange);
             Instance.sfxSource.PlayOneShot(clip, volume);
         }

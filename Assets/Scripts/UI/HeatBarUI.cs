@@ -17,7 +17,6 @@ namespace BulletHell.UI
 
         void Awake()
         {
-            // Sembunyikan seluruh bar jika bukan Mode Overheat
             if (GameSettings.SelectedMode != GameMode.Overheat)
             {
                 gameObject.SetActive(false);
