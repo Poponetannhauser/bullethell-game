@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: StarCrusher
   m_EditorClassIdentifier: Assembly-CSharp::BulletHell.Data.EnemyDataSO
   maxHealth: 100
-  moveSpeed: 10
+  moveSpeed: 15
   fireRate: 5
   bulletPoolKey: BossBullet
   scoreValue: 2000
+  contactDamage: 10
   hitFlashColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
   shatterColor: {r: 1, g: 1, b: 1, a: 1}
   entrySpeed: 2
