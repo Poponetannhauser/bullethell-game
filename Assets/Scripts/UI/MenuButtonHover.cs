@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
+using BulletHell.Managers;
 
 namespace BulletHell.UI
 {
@@ -33,6 +34,8 @@ namespace BulletHell.UI
         {
             transform.localScale = originalScale * hoverScale;
             if (buttonText != null) buttonText.color = hoverTextColor;
+            
+            AudioManager.PlayUIHover();
 
             if (mainMenu != null && !string.IsNullOrEmpty(hoverDescription))
                 mainMenu.ShowDescription(hoverDescription);

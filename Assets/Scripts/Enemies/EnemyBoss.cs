@@ -13,19 +13,7 @@ namespace BulletHell.Enemies
         [SerializeField] private Transform firePoint;
         [SerializeField] private SpriteRenderer outlineRenderer;
 
-        [Header("Movement")]
-        [SerializeField] private float entrySpeed = 2f;
-        [SerializeField] private float targetScreenYOffset = 2.5f;
-        [SerializeField] private float bounceSpeed = 4f;
-        [SerializeField] private float phase2SpeedMultiplier = 1.4f;
-
-        [Header("Phase 1: Radial Ring")]
-        [SerializeField] private int radialBulletCount = 12;
-        [SerializeField] private float phase1FireRate = 2.5f;
-
-        [Header("Phase 2: Spiral")]
-        [SerializeField] private float phase2FireRate = 0.15f;
-        [SerializeField] private float spiralAngleIncrement = 20f;
+        [Header("Phase 2 Visuals")]
         [SerializeField] private Color phase2Color = new Color(1f, 0.4f, 0f);
 
         private Rigidbody2D rb;
@@ -47,7 +35,6 @@ namespace BulletHell.Enemies
             rb = GetComponent<Rigidbody2D>();
         }
 
-        // Reset before base.OnEnable so GetCurrentBaseColor returns phase 1 color
         protected override void OnEnable()
         {
             isPhase2 = false;
@@ -62,9 +49,9 @@ namespace BulletHell.Enemies
             if (player != null) playerTransform = player.transform;
 
             Camera mainCam = Camera.main;
-            if (mainCam != null)
+            if (mainCam != null && data != null)
             {
-                targetY = mainCam.orthographicSize - targetScreenYOffset;
+                targetY = mainCam.orthographicSize - data.targetScreenYOffset;
                 minCamBounds = mainCam.ViewportToWorldPoint(new Vector3(0.1f, 0.4f, 0));
                 maxCamBounds = mainCam.ViewportToWorldPoint(new Vector3(0.9f, 0.9f, 0));
             }
@@ -78,7 +65,7 @@ namespace BulletHell.Enemies
             {
                 if (transform.position.y > targetY)
                 {
-                    rb.linearVelocity = Vector2.down * entrySpeed;
+                    rb.linearVelocity = Vector2.down * data.entrySpeed;
                 }
                 else
                 {
@@ -92,10 +79,9 @@ namespace BulletHell.Enemies
             }
             else
             {
-                float speed = isPhase2 ? bounceSpeed * phase2SpeedMultiplier : bounceSpeed;
+                float speed = isPhase2 ? data.bounceSpeed * data.phase2SpeedMultiplier : data.bounceSpeed;
                 rb.linearVelocity = moveDirection * speed;
 
-                // Bounce off camera boundaries with slight angle randomization
                 Vector3 pos = transform.position;
                 bool bounced = false;
 
@@ -121,30 +107,28 @@ namespace BulletHell.Enemies
 
             if (Time.time >= nextFireTime)
             {
-                if (!isPhase2) { ExecutePhase1Attack(); nextFireTime = Time.time + phase1FireRate; }
-                else { ExecutePhase2Attack(); nextFireTime = Time.time + phase2FireRate; }
+                if (!isPhase2) { ExecutePhase1Attack(); nextFireTime = Time.time + data.phase1FireRate; }
+                else { ExecutePhase2Attack(); nextFireTime = Time.time + data.phase2FireRate; }
             }
         }
 
-        // Phase 1: fires bullets in a circular ring
         private void ExecutePhase1Attack()
         {
             if (string.IsNullOrEmpty(data.bulletPoolKey) || firePoint == null) return;
-            float angleStep = 360f / radialBulletCount;
+            float angleStep = 360f / data.radialBulletCount;
             float angle = 0f;
-            for (int i = 0; i < radialBulletCount; i++)
+            for (int i = 0; i < data.radialBulletCount; i++)
             {
                 PoolManager.Instance.GetPooledObject(data.bulletPoolKey, firePoint.position, Quaternion.Euler(0, 0, angle));
                 angle += angleStep;
             }
         }
 
-        // Phase 2: fires bullets in a continuously rotating spiral
         private void ExecutePhase2Attack()
         {
             if (string.IsNullOrEmpty(data.bulletPoolKey) || firePoint == null) return;
             PoolManager.Instance.GetPooledObject(data.bulletPoolKey, firePoint.position, Quaternion.Euler(0, 0, currentSpiralAngle));
-            currentSpiralAngle = (currentSpiralAngle + spiralAngleIncrement) % 360f;
+            currentSpiralAngle = (currentSpiralAngle + data.spiralAngleIncrement) % 360f;
         }
 
         private void EnterPhase2()
@@ -158,7 +142,6 @@ namespace BulletHell.Enemies
             return isPhase2 ? phase2Color : initialColor;
         }
 
-        // Multi-stage death: freeze, chain explosions, then final blast
         protected override void Die()
         {
             if (isDead) return;
@@ -175,12 +158,12 @@ namespace BulletHell.Enemies
             float duration = 2.0f;
             float timer = 0f;
 
-            // Chain explosions with screen shake
             while (timer < duration)
             {
                 Vector3 offset = new Vector3(Random.Range(-1.5f, 1.5f), Random.Range(-1.5f, 1.5f), 0);
                 SpawnShatter(transform.position + offset, shatterColor);
                 CameraShake.TriggerShake(0.1f, 0.2f);
+                AudioManager.PlaySFX(AudioManager.Instance?.bossExplosion, 0.5f);
 
                 if (spriteRenderer != null)
                     spriteRenderer.color = (timer % 0.2f > 0.1f) ? Color.white : GetCurrentBaseColor();
@@ -190,7 +173,6 @@ namespace BulletHell.Enemies
                 timer += wait;
             }
 
-            // Final explosion burst
             CameraShake.TriggerShake(1.0f, 0.8f);
             CameraShake.TriggerHitStop(0.2f);
 
@@ -224,7 +206,8 @@ namespace BulletHell.Enemies
             if (collision.gameObject.CompareTag("Player"))
             {
                 var player = collision.gameObject.GetComponentInParent<IDamageable>();
-                if (player != null) player.TakeDamage(25f);
+                if (player != null && data != null) 
+                    player.TakeDamage(data.contactDamage);
             }
         }
     }

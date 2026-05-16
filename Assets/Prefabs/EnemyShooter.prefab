@@ -85,7 +85,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 75f5f34dc1b5347e0b8351032682f224, type: 3}
+  m_Sprite: {fileID: 1392089294744885835, guid: a03199f9219c2284685a82990564b716, type: 3}
   m_Color: {r: 0.36862746, g: 0.36862746, b: 0.33333334, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -171,6 +171,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BulletHell.Gameplay.EnemyTurret
   data: {fileID: 11400000, guid: 770e322154d3d944abdc582c43fd6ccd, type: 2}
+  spriteRenderer: {fileID: 0}
   firePoint: {fileID: 5775099609303427680}
 --- !u!1 &7747889113413173071
 GameObject:

@@ -85,7 +85,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 48e93eef0688c4a259cb0eddcd8661f7, type: 3}
+  m_Sprite: {fileID: -1213666549507972350, guid: ad5a03337ad4745429dc843bf0124a94, type: 3}
   m_Color: {r: 0.76862746, g: 0.76862746, b: 0.76862746, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -171,6 +171,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BulletHell.Gameplay.EnemyStrafer
   data: {fileID: 11400000, guid: b0e6210c149de754a9b85658fd9a3085, type: 2}
+  spriteRenderer: {fileID: 0}
   firePoint: {fileID: 7692078180919129360}
   strafeFrequency: 2
   strafeAmplitude: 3

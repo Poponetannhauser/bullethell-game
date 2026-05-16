@@ -114,8 +114,13 @@ namespace BulletHell.Player
                 OnHeatChanged?.Invoke(currentHeat, 100f);
 
                 if (currentHeat >= 100f)
+                {
+                    AudioManager.PlaySFX(AudioManager.Instance?.overheatAlarm);
                     StartCoroutine(OverheatRoutine());
+                }
             }
+
+            AudioManager.PlaySFX(AudioManager.Instance?.playerShoot, 0.4f);
         }
 
         // Locks weapon for a duration when heat reaches 100%
@@ -163,6 +168,7 @@ namespace BulletHell.Player
 
             CameraShake.TriggerShake(0.2f, 0.35f);
             CameraShake.TriggerHitStop(0.06f);
+            AudioManager.PlaySFX(AudioManager.Instance?.playerHit);
 
             if (currentHealth <= 0)
                 Die();
@@ -202,6 +208,7 @@ namespace BulletHell.Player
 
         private void Die()
         {
+            AudioManager.PlaySFX(AudioManager.Instance?.playerDeath);
             OnPlayerDeath?.Invoke();
             gameObject.SetActive(false);
         }

@@ -84,7 +84,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
+  m_Sprite: {fileID: -9083258127331796883, guid: 8a7c64ed06247b647b7ac85e6ef03ac9, type: 3}
   m_Color: {r: 0.5411765, g: 0.5411765, b: 0.5411765, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -170,3 +170,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BulletHell.Gameplay.EnemyController
   data: {fileID: 11400000, guid: 7480768e73bdfdd4e8386f42f623c166, type: 2}
+  spriteRenderer: {fileID: 0}

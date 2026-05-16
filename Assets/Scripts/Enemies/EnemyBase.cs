@@ -68,6 +68,7 @@ namespace BulletHell.Enemies
             if (GameManager.Instance != null && data != null)
                 GameManager.Instance.AddScore(data.scoreValue, transform.position);
 
+            AudioManager.PlaySFX(AudioManager.Instance?.enemyDeath, 0.6f);
             SpawnShatterEffect();
             PoolManager.Instance.ReturnToPool(gameObject);
         }
@@ -85,13 +86,13 @@ namespace BulletHell.Enemies
         }
 
         // Shared collision handler — call from OnCollisionEnter2D in child classes
-        protected virtual void HandlePlayerCollision(GameObject other, float contactDamage = 10f)
+        protected virtual void HandlePlayerCollision(GameObject other)
         {
             if (other.CompareTag("Player"))
             {
                 IDamageable player = other.GetComponentInParent<IDamageable>();
-                if (player != null)
-                    player.TakeDamage(contactDamage);
+                if (player != null && data != null)
+                    player.TakeDamage(data.contactDamage);
 
                 Die();
             }

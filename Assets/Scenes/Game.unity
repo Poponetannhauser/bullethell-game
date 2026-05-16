@@ -1098,7 +1098,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 10
+  orthographic size: 8
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1160,7 +1160,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BulletHell.Managers.GameManager
   gameOverPanel: {fileID: 410597274}
   victoryPanel: {fileID: 2031715455}
-  bossPoolKey: TheVoid
+  bossPoolKey: StarCrusher
 --- !u!4 &573068084
 Transform:
   m_ObjectHideFlags: 0
@@ -2592,7 +2592,7 @@ MonoBehaviour:
   - poolKey: EnemyBullet
     prefab: {fileID: 2660614856086525119, guid: 269de556abd43514f9ebf648c40c7585, type: 3}
     size: 10
-  - poolKey: TheVoid
+  - poolKey: StarCrusher
     prefab: {fileID: 839100701570630593, guid: 6bb97875fd95eed4680c055f0eb66795, type: 3}
     size: 1
   - poolKey: BossBullet
@@ -2883,7 +2883,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 2150871330291307017, guid: 22cf4c6c1fb2ba8499d15c246861c35a, type: 3}
+  m_Sprite: {fileID: -1869186580, guid: 0c9a571a92e29294d878db841c325961, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4135,6 +4135,10 @@ PrefabInstance:
     - target: {fileID: 2742312492385398397, guid: 585c6c18218cbc44092d0df311af20e2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5877298397524134906, guid: 585c6c18218cbc44092d0df311af20e2, type: 3}
+      propertyPath: maxHealth
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6964516984176471042, guid: 585c6c18218cbc44092d0df311af20e2, type: 3}
       propertyPath: m_Name

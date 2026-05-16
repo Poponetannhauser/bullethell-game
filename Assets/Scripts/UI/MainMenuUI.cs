@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using BulletHell.Core;
+using BulletHell.Managers;
 
 namespace BulletHell.UI
 {
@@ -31,12 +32,14 @@ namespace BulletHell.UI
         // Mode selection — sets GameSettings before loading game scene
         public void PlayClassicMode()
         {
+            AudioManager.PlayUIClick();
             GameSettings.SelectedMode = GameMode.Classic;
             SceneManager.LoadScene(gameSceneName);
         }
 
         public void PlayOverheatMode()
         {
+            AudioManager.PlayUIClick();
             GameSettings.SelectedMode = GameMode.Overheat;
             SceneManager.LoadScene(gameSceneName);
         }
@@ -44,18 +47,21 @@ namespace BulletHell.UI
         // Panel navigation — hides main buttons, shows sub-panel
         public void OpenLeaderboard()
         {
+            AudioManager.PlayUIClick();
             if (mainPanel != null) mainPanel.SetActive(false);
             if (leaderboardPanel != null) leaderboardPanel.SetActive(true);
         }
 
         public void OpenSettings()
         {
+            AudioManager.PlayUIClick();
             if (mainPanel != null) mainPanel.SetActive(false);
             if (settingsPanel != null) settingsPanel.SetActive(true);
         }
 
         public void BackToMain()
         {
+            AudioManager.PlayUIClick();
             if (leaderboardPanel != null) leaderboardPanel.SetActive(false);
             if (settingsPanel != null) settingsPanel.SetActive(false);
             if (mainPanel != null) mainPanel.SetActive(true);
