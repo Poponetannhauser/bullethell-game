@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a554aea8c5ef7584180e5893fbb39010, type: 3}
   m_Name: StarCrusher
   m_EditorClassIdentifier: Assembly-CSharp::BulletHell.Data.EnemyDataSO
-  maxHealth: 100
+  maxHealth: 500
   moveSpeed: 15
   fireRate: 5
   bulletPoolKey: BossBullet
-  scoreValue: 2000
+  scoreValue: 1000
   contactDamage: 10
   hitFlashColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
   shatterColor: {r: 1, g: 1, b: 1, a: 1}

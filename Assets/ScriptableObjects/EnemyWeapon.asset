@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 832eb9da0f277bb42820fa443b093fba, type: 3}
   m_Name: EnemyWeapon
   m_EditorClassIdentifier: Assembly-CSharp::BulletHell.Data.WeaponDataSO
-  damage: 1
+  damage: 10
   bulletSpeed: 5
   fireRate: 3
   bulletPoolKey: EnemyBullet

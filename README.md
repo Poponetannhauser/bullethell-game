@@ -1,49 +1,55 @@
 # 1000X
 
-A minimalist Bullet Hell shooter built with Unity, focusing on high-performance systems and modular architecture
+Game Bullet Hell shooter minimalis yang dibangun menggunakan Unity, fokus pada efisiensi performa tinggi dan arsitektur modular
 
 ---
 
-## Game Information
+## Informasi Game
 
-### Controls & Navigation
-- **Movement**: WASD / Arrow Keys
-- **Shooting**: Space / Left Click (Hold)
+### Kontrol & Navigasi
+
+- **Movemenet**: WASD / Tombol Arah
+- **Shooting**: Spasi / Klik Kiri (Tahan)
 - **Pause**: Escape
-- **UI Navigation**: Use the Mouse to interact with menu buttons
+- **Navigasi UI**: Menggunakan Mouse untuk berinteraksi dengan tombol menu
 
 ### Win & Lose Conditions
-- **Win Condition**: Survive until the Boss spawns (at the 5-minute mark) and successfully defeat it
-- **Lose Condition**: Player's HP reaches 0
+
+- **Win Condition**: Survive selama 5 menit dan mengalahkan Boss
+- **Lose Condition**: HP Player mencapai 0 akibat terkena proyektil atau menabrak musuh
 
 ---
 
-## Features
+## Fitur
 
-### Implemented Features
-- [x] **Object Pooling System**: Efficient memory management for hundreds of active projectiles and enemies
-- [x] **Data-Driven Design**: Enemy and weapon statistics are managed via ScriptableObjects for easy balancing without code changes
-- [x] **Dynamic Scaling**: Difficulty and enemy spawning intensity increase over time using a weighted random system
-- [x] **Weapon Overheat Mechanic**: Adds a layer of tactical play to discourage mindless shooting
-- [x] **Multi-Phase Boss Battle**: Boss behavior and visuals evolve based on health thresholds
-- [x] **Local Leaderboard**: Persistent high-score tracking using PlayerPrefs
+### Fitur yang Berhasil Diimplementasikan
 
-### Unfinished Features & Reasoning
-- **Power-up System**: Originally planned but postponed due to time constraints. Priority was given to polishing the core gameplay loop and ensuring system stability.
+- **Object Pooling**: Sistem untuk menghindari penggunaan Instantiate/Destroy yang dapat menyebabkan lag
+- **Data Driven menggunakan ScriptableObject**: Statistik musuh dan senjata dikelola melalui ScriptableObjects untuk mempermudah balancing tanpa mengubah kode program
+- **Dynamic Difficulty**: Intensitas spawning musuh meningkat seiring waktu menggunakan sistem weighted random
+- **Overheat Mode**: Game mode yang menambahkan elemen taktis agar pemain tidak menembak secara terus-menerus tanpa strategi
+- **Multi-Phase Boss**: Boss dengan 2 fase yang akan berubah berdasarkan sisa HP
+- **Local Leaderboard**: Penyimpanan skor tertinggi menggunakan PlayerPrefs
 
----
+### Fitur yang Tidak Selesai & Alasannya
 
-## Reflection
-
-### Known Bugs & Limitations
-- **Device Compatibility**: The game has currently only been tested on the primary development environment. Performance and UI scaling on varying hardware specifications or aspect ratios are yet to be fully verified.
-
-### Future Improvements
-- **Buff & Power-up System**: Implementing a variety of collectible buffs to increase gameplay depth.
-- **Enemy Variety**: Adding more complex enemy types with unique movement and fire patterns to enhance the challenge.
-
-### Biggest Challenge
-The most significant challenge during development was **refactoring and cleaning up the code architecture**. Ensuring that the Singleton managers, event systems, and inheritance patterns (e.g., `EnemyBase`) remained clean and extensible required constant iteration to avoid technical debt while maintaining a high-performance codebase.
+- **Sistem Power-up/roguelike**: Rencana awal untuk menambahkan power-up dan sistem roguelike ditunda karena keterbatasan waktu pengerjaan. Prioritas dialihkan untuk menyempurnakan core gameplay loop dan memastikan stabilitas sistem utama
 
 ---
-*Technical exploration project for Bullet Hell development in Unity.*
+
+## Refleksi
+
+### Known Bugs & Limitasi
+
+- **Kompatibilitas Perangkat**: Game sejauh ini baru diuji di device pribadi. Performa serta kecocokan skala UI pada berbagai spesifikasi perangkat atau rasio layar yang berbeda belum di tes
+
+### Rencana Perbaikan (Future Improvements)
+
+- **Sistem Power-up & Roguelike**: Mengimplementasikan berbagai buff yang dapat diambil untuk meningkatkan kedalaman variasi gameplay.
+- **Variasi Musuh**: Menambahkan jenis musuh yang lebih kompleks dengan pola gerakan dan tembakan unik untuk meningkatkan tantangan, terutama boss
+
+### Tantangan Terbesar
+
+Tantangan terbesar selama proses pengerjaan adalah merapikan arsitektur kode dan manajemen pengerjaan. Karena saya terus mencoba ekplorasi fitur baru, padahal core gameplay nya saja belum matang, sehingga terkadang saya harus merombak ulang
+
+---
