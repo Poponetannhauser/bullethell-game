@@ -1,6 +1,6 @@
 # 1000X
 
-Game Bullet Hell shooter minimalis yang dibangun menggunakan Unity, fokus pada efisiensi performa tinggi dan arsitektur modular
+Game Bullet Hell shooter minimalis yang dibangun menggunakan Unity, fokus pada efisiensi dan arsitektur modular
 
 ---
 
