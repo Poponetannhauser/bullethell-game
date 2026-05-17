@@ -53,3 +53,7 @@ Game Bullet Hell shooter minimalis yang dibangun menggunakan Unity, fokus pada e
 Tantangan terbesar selama proses pengerjaan adalah merapikan arsitektur kode dan manajemen pengerjaan. Karena saya terus mencoba ekplorasi fitur baru, padahal core gameplay nya saja belum matang, sehingga terkadang saya harus merombak ulang
 
 ---
+
+## AI Usage
+* **Tools:** Google Gemini & Antigravity
+* **Penggunaan:** Digunakan sebagai asisten koding (*copilot*) untuk diskusi logika dan *debugging*
